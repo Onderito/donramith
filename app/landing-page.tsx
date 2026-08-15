@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { AsYouType, CountryCode, getCountries, getCountryCallingCode, parsePhoneNumberFromString } from "libphonenumber-js";
+import { CheckCircle2, Heart, MessageSquare, Mic, Network, Shield, UsersRound, XCircle } from "lucide-react";
+import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const challenges = [
@@ -19,16 +21,36 @@ const budgets = [
   "My budget is around $500 USD to get started.",
   "I DON'T have the finances to invest in myself.",
 ];
-const minimumBudget = Number(process.env.NEXT_PUBLIC_MIN_BUDGET_USD || 100);
-
 type ApplicationData = { firstName: string; lastName: string; email: string; phone: string; instagram: string; challenge: string; importance: string; budget: string };
 const initialForm: ApplicationData = { firstName: "", lastName: "", email: "", phone: "", instagram: "", challenge: "", importance: "", budget: "" };
 const testimonials = ["1.mp4", "2.mp4", "3.mp4", "diego.mp4", "5.mp4", "6.mp4"];
-const heroSlides = [
-  { src: "/hero-don-leading-session.webp", alt: "Don leading a conversation during a group coaching session" },
-  { src: "/hero-don-beach.webp", alt: "Don sharing a joyful moment with friends by the ocean" },
-  { src: "/hero-don-conversation.webp", alt: "Don having a conversation with a group during a coaching session" },
-  { src: "/hero-don-beach-walk.webp", alt: "Don walking and talking with a woman on the beach" },
+const outcomes = [
+  { Icon: Shield, title: "Walk Away Unshakeable", description: "Develop self-belief so deep that rejection, judgment, and criticism stop controlling your choices." },
+  { Icon: MessageSquare, title: "Speak With Confidence", description: "Express yourself clearly without second-guessing every word. Flow effortlessly in any conversation." },
+  { Icon: Heart, title: "Attract Without Trying", description: "Approach with ease, build genuine attraction, and stop losing the connection after a great start." },
+  { Icon: UsersRound, title: "Become Magnetically Social", description: "Read the room, command respect, and become someone people genuinely want to be around." },
+  { Icon: Network, title: "Build High-Value Relationships", description: "Open doors in career and life through authentic connections with people who matter." },
+  { Icon: Mic, title: "Own Any Room", description: "Command an audience, articulate your ideas powerfully, and be remembered long after you leave." },
+];
+const fitItems = [
+  "You overthink conversations before and after they happen",
+  "You struggle meeting new people or feel invisible in groups",
+  "You want more confidence in dating or romantic situations",
+  "You avoid speaking up even when you have something to say",
+  "You know you're capable of more but can't seem to act on it",
+];
+const notFitItems = [
+  "You want instant results without putting in the work",
+  "You're not willing to practice outside of sessions",
+  "You expect confidence to arrive without discomfort",
+  "You're looking for scripts and tricks instead of real change",
+  "You're not ready to invest seriously in yourself",
+];
+const howItWorks = [
+  { title: "Tell Me About Yourself", description: "Fill out a short application so I can understand where you're starting from and what's holding you back." },
+  { title: "Let's Meet", description: "We'll get on a strategy call to see if we're the right fit and map out exactly what your transformation looks like." },
+  { title: "Your Personalized Game Plan", description: "Weekly 1:1 sessions, custom exercises, and real-world challenges built strictly around your bottlenecks." },
+  { title: "Build Confidence That Lasts", description: "Not just tactics—an identity shift. You'll step into social situations with the ease you've always wanted." },
 ];
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 const countries = getCountries().map(code => ({ code, name: regionNames.of(code) || code, callingCode: getCountryCallingCode(code) })).sort((a, b) => a.name.localeCompare(b.name));
@@ -119,7 +141,6 @@ function Application({ open, close }: { open: boolean; close: () => void }) {
 export function LandingPage() {
   const [apply, setApply] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [heroSlide, setHeroSlide] = useState(0);
   const testimonialTrack = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const reveal = reduce ? {} : { initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: .2 }, transition: { duration: .55 } };
@@ -129,9 +150,6 @@ export function LandingPage() {
   function pauseOtherTestimonials(current: HTMLVideoElement) {
     testimonialTrack.current?.querySelectorAll("video").forEach(video => { if (video !== current) video.pause(); });
   }
-  function moveHero(direction: number) {
-    setHeroSlide(current => (current + direction + heroSlides.length) % heroSlides.length);
-  }
   return <main>
     <ScrollProgress />
     <nav><a className="wordmark" href="#top">DON <i>RAMITH</i></a><div className="nav-links"><a href="#method">The method</a><a href="#testimonials">Testimonials</a><a href="#faq">FAQ</a><button onClick={() => setApply(true)}>Apply now <Arrow /></button></div></nav>
@@ -139,26 +157,39 @@ export function LandingPage() {
       <motion.div className="hero-copy" initial={reduce ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}>
         <h1>Become the man<br/>who starts the<br/><em>conversation.</em></h1>
         <p className="lede">Build real confidence, approach authentically, and create genuine connections without scripts, tricks, or pretending to be someone else.</p>
-        <div className="hero-actions"><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button><a className="secondary" href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Watch on Instagram <Arrow /></a></div>
-        <p className="social-proof"><b>10K+</b> people following Don’s journey</p>
-      </motion.div>
-      <motion.div className="hero-carousel" initial={reduce ? false : { opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7, delay: .15 }} aria-roledescription="carousel" aria-label="Don Ramith gallery">
-        <div className="hero-carousel-viewport">
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.img key={heroSlides[heroSlide].src} src={heroSlides[heroSlide].src} alt={heroSlides[heroSlide].alt} width="6000" height="4000" draggable={false}
-              initial={reduce ? false : { opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: .38, ease: [0.2, 0, 0, 1] }}
-              drag={heroSlides.length > 1 ? "x" : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.12}
-              onDragEnd={(_, info) => { if (Math.abs(info.offset.x) > 55) moveHero(info.offset.x < 0 ? 1 : -1); }} />
-          </AnimatePresence>
-        </div>
-        {heroSlides.length > 1 && <><div className="hero-carousel-controls"><button type="button" onClick={() => moveHero(-1)} aria-label="Previous image">←</button><button type="button" onClick={() => moveHero(1)} aria-label="Next image">→</button></div><div className="hero-carousel-dots" aria-label="Choose an image">{heroSlides.map((slide, index) => <button type="button" className={index === heroSlide ? "active" : ""} onClick={() => setHeroSlide(index)} aria-label={`Show image ${index + 1}`} aria-current={index === heroSlide ? "true" : undefined} key={slide.src} />)}</div></>}
+        <div className="hero-actions"><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button></div>
       </motion.div>
     </section>
 
     <section className="marquee" aria-label="Don Ramith principles"><div>CONFIDENCE <i>•</i> AUTHENTICITY <i>•</i> CONNECTION <i>•</i> ACTION <i>•</i> CONFIDENCE <i>•</i> AUTHENTICITY</div></section>
 
+    <motion.section className="my-story" id="story" {...reveal}>
+      <div className="my-story-image"><Image src="/hero-don-beach-walk.webp" alt="Don walking and talking on the beach" fill sizes="(max-width: 800px) 100vw, 54vw" /></div>
+      <div className="my-story-copy">
+        <p className="section-index">MY STORY</p>
+        <h2>Hi, I&apos;m <em>Don.</em></h2>
+        <p>A few years ago, I struggled with confidence too. Conversations felt forced. I&apos;d rehearse what to say before every interaction—and still freeze.</p>
+        <p>Instead of accepting it, I started practicing conversations with strangers every single day. Those small, uncomfortable actions changed my life completely—and now I&apos;ve helped thousands of people build the same unshakeable confidence through my content and coaching.</p>
+        <button className="primary" onClick={() => setApply(true)}>Start your confidence journey <Arrow /></button>
+      </div>
+    </motion.section>
+
+    <section className="outcomes" aria-labelledby="outcomes-title">
+      <motion.div className="outcomes-head" {...reveal}>
+        <h2 id="outcomes-title">What You&apos;ll Walk Away With</h2>
+        <p>Six areas, one transformation. Each skill reinforces the next.</p>
+      </motion.div>
+      <div className="outcomes-grid">{outcomes.map(({ Icon, title, description }, index) =>
+        <motion.article key={title} initial={reduce ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .25 }} transition={{ duration: .48, delay: index % 3 * .08 }}>
+          <span className="outcome-icon" aria-hidden="true"><Icon /></span>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </motion.article>
+      )}</div>
+    </section>
+
     <motion.section className="transformation" {...reveal}>
-      <div className="transformation-head"><p className="section-index">01 / THE TRANSFORMATION</p><h2>From holding back<br/>to <em>showing up.</em></h2><p>Coaching is not about becoming someone else. It is about replacing hesitation with the confidence to act naturally.</p></div>
+      <div className="transformation-head"><h2>The Transformation</h2><p>This is what changes when you commit.</p></div>
       <div className="comparison" role="table" aria-label="Before and after coaching"><div className="comparison-label before-label" role="columnheader">BEFORE</div><div className="comparison-label after-label" role="columnheader">AFTER</div>{[
         ["Overthinking every interaction","Starting conversations naturally"],
         ["Fear of rejection","Comfortable meeting anyone"],
@@ -168,13 +199,27 @@ export function LandingPage() {
       ].map(([before,after])=><div className="comparison-row" role="row" key={before}><div className="before-item" role="cell"><b aria-hidden="true">×</b><span>{before}</span></div><div className="after-item" role="cell"><b aria-hidden="true">✓</b><span>{after}</span></div></div>)}</div>
     </motion.section>
 
-    <section className="method" id="method"><div className="method-layout"><motion.div className="method-head" {...reveal}><p className="section-index">02 / THE METHOD</p><h2>Confidence <span className="method-title-line">built in the</span> <em>real world.</em></h2><p>Not theory. Not pickup tricks. A direct coaching process built around who you are.</p></motion.div>
-      <div className="steps">{[["01","See clearly","We identify the habits, beliefs and situations that keep you stuck. You leave with a clear picture of what actually needs to change."],["02","Practice for real","You take focused action in real social situations, with direct feedback that turns every attempt into useful progress."],["03","Make it yours","The new behavior becomes natural. Confidence stops feeling like something you perform and starts feeling like who you are."]].map(([n,t,d])=><motion.article key={n} initial={reduce ? false : { opacity:0, y:70, scale:.97 }} whileInView={{ opacity:1, y:0, scale:1 }} viewport={{ once:true, amount:.45 }} transition={{ duration:.55 }}><b>{n}</b><span className="step-mark">↗</span><h3>{t}</h3><p>{d}</p></motion.article>)}</div></div>
+    <section className="fit-section" aria-label="Who coaching is and is not for">
+      <div className="fit-grid">
+        <motion.article className="fit-card fit-card-positive" {...reveal}>
+          <header><h2>This is for you if...</h2><p>You&apos;ll see yourself in at least one of these.</p></header>
+          <ul>{fitItems.map((item, index) => <motion.li key={item} initial={reduce ? false : { opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .38, delay: index * .055 }}><CheckCircle2 aria-hidden="true"/><span>{item}</span></motion.li>)}</ul>
+        </motion.article>
+        <motion.article className="fit-card fit-card-negative" {...reveal} transition={{ duration: .55, delay: .1 }}>
+          <header><h2>This is NOT for you if...</h2><p>Don is selective about who he works with.</p></header>
+          <ul>{notFitItems.map((item, index) => <motion.li key={item} initial={reduce ? false : { opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .38, delay: index * .055 }}><XCircle aria-hidden="true"/><span>{item}</span></motion.li>)}</ul>
+        </motion.article>
+      </div>
     </section>
 
-    <section className="about"><motion.div className="about-card" {...reveal}><p className="section-index">03 / MEET DON</p><div><h2>Not a guru.<br/><em>A real person.</em></h2><p>Don built his confidence by doing the work in real life. His approach is direct, human and grounded in authenticity because the goal isn’t to become someone else. It’s to become fully comfortable being you.</p><a href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Follow Don on Instagram <Arrow /></a></div><div className="signature">DR</div></motion.div></section>
+    <section className="how-section" id="method">
+      <motion.div className="how-head" {...reveal}><h2>How It Works</h2><p>A simple, personal path from where you are to where you want to be.</p></motion.div>
+      <div className="how-timeline">{howItWorks.map(({ title, description }, index) => <motion.article className={`how-step ${index % 2 ? "how-step-right" : "how-step-left"}`} key={title} initial={reduce ? false : { opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .35 }} transition={{ duration: .48 }}>
+        <div className="how-card"><h3>{title}</h3><p>{description}</p></div><span className="how-number" aria-hidden="true">{index + 1}</span>
+      </motion.article>)}</div>
+    </section>
 
-    <section className="content testimonials" id="testimonials"><motion.div className="content-head" {...reveal}><p className="section-index">04 / TESTIMONIALS</p><h2>Hear it from<br/><em>the men coached.</em></h2></motion.div>
+    <section className="content testimonials" id="testimonials"><motion.div className="content-head" {...reveal}><p className="section-index">TESTIMONIALS</p><h2>Hear it from<br/><em>the men coached.</em></h2></motion.div>
       <div className="testimonial-toolbar"><p>Swipe or use the arrows to explore every story.</p><div className="testimonial-controls"><button type="button" onClick={() => slideTestimonials(-1)} aria-label="Previous testimonial">←</button><button type="button" onClick={() => slideTestimonials(1)} aria-label="Next testimonial">→</button></div></div>
       <div className="testimonial-track" ref={testimonialTrack}>{testimonials.map((file, index) => <article className="testimonial-video" key={file}>
         {/* Captions can be added once transcripts are available. */}
@@ -184,18 +229,11 @@ export function LandingPage() {
       </article>)}</div>
     </section>
 
-    <section className="top-videos" id="content"><motion.div className="content-head" {...reveal}><p className="section-index">05 / TOP VIDEOS</p><h2>The videos people<br/><em>keep watching.</em></h2><a href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">View Instagram <Arrow /></a></motion.div><div className="top-video-grid">{[
-      ["/top-video-1.png","She is Jacked","1.9M views"],
-      ["/top-video-2.png","The Social Challenge","190K views"],
-      ["/top-video-3.png","5 Kids","309K views"],
-    ].map(([src,title,views],i)=><motion.a className="top-video-card" href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer" key={src} {...reveal} transition={{ duration:.5, delay:i*.08 }} aria-label={`${title}, ${views}, watch on Instagram`}><img src={src} alt={`Thumbnail for ${title}`} width="626" height="978"/><span>WATCH ON INSTAGRAM <Arrow /></span></motion.a>)}</div></section>
-
-    <section className="faq" id="faq"><motion.div className="faq-head" {...reveal}><p className="section-index">06 / FAQ</p><h2>Clear answers.<br/><em>No pressure.</em></h2><p>Everything you need to know before applying for private coaching.</p></motion.div><div className="faq-list">{[
-      ["Who is this coaching for?","For men who want stronger real-world confidence, more natural conversations and genuine connections without relying on scripts or pretending to be someone else."],
-      ["Is this pickup coaching?","No. Don’s work is about self-trust, social confidence and authentic communication, not tricks, manipulation or memorized lines."],
-      ["How does the coaching work?","The exact format is discussed on the fit call. The process combines honest diagnosis, focused real-world practice and direct feedback tailored to you."],
-      ["How much does private coaching cost?",`Private coaching starts from $${minimumBudget}. The application includes a budget check so both sides know whether moving forward makes sense.`],
-      ["What happens after I apply?","Don reviews your answers. If the fit and investment are aligned, you can choose a time for an initial call and discuss the next steps."],
+    <section className="faq" id="faq"><motion.div className="faq-head" {...reveal}><p className="section-index">FAQ</p><h2>Clear answers.<br/><em>No pressure.</em></h2><p>Everything you need to know before applying for private coaching.</p></motion.div><div className="faq-list">{[
+      ["Who is coaching for?","Coaching is for anyone who wants to build unshakeable confidence, master their social skills, improve their dating life, or level up their professional presence. Whether you're starting from scratch or refining what you've already built."],
+      ["How long is the coaching program?","Programs typically run 3 to 6 months depending on your starting point and goals. Meaningful identity change takes time, and we focus on permanent transformation—not quick fixes that fade."],
+      ["Is this dating coaching?","Dating confidence is a common focus area, but the coaching addresses your full social presence. The same skills that make you confident in dating also apply to making friends, commanding a boardroom, and public speaking."],
+      ["How much does coaching cost?","The investment varies based on the program we build together. Fill out the application—if we're a fit, we'll cover all details including pricing and structure on our strategy call."],
     ].map(([question,answer],i)=><motion.div className={`faq-item${openFaq === i ? " open" : ""}`} key={question} {...reveal} transition={{ duration:.4, delay:i*.05 }}><button className="faq-question" type="button" aria-expanded={openFaq === i} aria-controls={`faq-answer-${i}`} onClick={() => setOpenFaq(openFaq === i ? null : i)}><span>{question}</span><b aria-hidden="true">+</b></button><div className="faq-answer-shell"><button id={`faq-answer-${i}`} className="faq-answer" type="button" tabIndex={openFaq === i ? 0 : -1} onClick={() => setOpenFaq(null)}><span>{answer}</span></button></div></motion.div>)}</div></section>
 
     <section className="final-cta"><motion.div {...reveal}><p className="eyebrow">READY WHEN YOU ARE</p><h2>One conversation<br/>can change <em>everything.</em></h2><p>Apply for private coaching and find out if Don’s process is the right fit for you.</p><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button></motion.div></section>
