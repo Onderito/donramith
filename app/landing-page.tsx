@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 
 import { AsYouType, CountryCode, getCountries, getCountryCallingCode, parsePhoneNumberFromString } from "libphonenumber-js";
 import { CheckCircle2, Heart, MessageSquare, Mic, Network, Shield, UsersRound, XCircle } from "lucide-react";
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 
 const challenges = [
   "I struggle with the open (Approach Anxiety)",
@@ -27,17 +27,18 @@ const testimonials = ["1.mp4", "2.mp4", "3.mp4", "diego.mp4", "5.mp4", "6.mp4"];
 const outcomes = [
   { Icon: Shield, title: "Walk Away Unshakeable", description: "Develop self-belief so deep that rejection, judgment, and criticism stop controlling your choices." },
   { Icon: MessageSquare, title: "Speak With Confidence", description: "Express yourself clearly without second-guessing every word. Flow effortlessly in any conversation." },
-  { Icon: Heart, title: "Attract Without Trying", description: "Approach with ease, build genuine attraction, and stop losing the connection after a great start." },
+  { Icon: Heart, title: "Attract authentically", description: "Approach with confidence, be yourself, create genuine attraction, and become the man women are drawn to." },
   { Icon: UsersRound, title: "Become Magnetically Social", description: "Read the room, command respect, and become someone people genuinely want to be around." },
   { Icon: Network, title: "Build High-Value Relationships", description: "Open doors in career and life through authentic connections with people who matter." },
   { Icon: Mic, title: "Own Any Room", description: "Command an audience, articulate your ideas powerfully, and be remembered long after you leave." },
 ];
 const fitItems = [
-  "You overthink conversations before and after they happen",
-  "You struggle meeting new people or feel invisible in groups",
-  "You want more confidence in dating or romantic situations",
-  "You avoid speaking up even when you have something to say",
-  "You know you're capable of more but can't seem to act on it",
+  "You see a woman you’re attracted to but can’t bring yourself to approach",
+  "You overthink what to say instead of simply starting the conversation",
+  "You struggle to have natural, engaging conversations with women",
+  "You want to meet and date more women but don’t know how to create genuine attraction",
+  "You don’t know how to create attraction or move things forward",
+  "You know you’re capable of being better with women, but you don’t know how to get there",
 ];
 const notFitItems = [
   "You want instant results without putting in the work",
@@ -155,21 +156,27 @@ export function LandingPage() {
     <nav><a className="wordmark" href="#top">DON <i>RAMITH</i></a><div className="nav-links"><a href="#method">The method</a><a href="#testimonials">Testimonials</a><a href="#faq">FAQ</a><button onClick={() => setApply(true)}>Apply now <Arrow /></button></div></nav>
     <section className="hero" id="top">
       <motion.div className="hero-copy" initial={reduce ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}>
-        <h1>Become the man<br/>who starts the<br/><em>conversation.</em></h1>
-        <p className="lede">Build real confidence, approach authentically, and create genuine connections without scripts, tricks, or pretending to be someone else.</p>
+        <h1>The social skills<br/>they never<br/><em>taught you!</em></h1>
+        <p className="lede">Work with me 1 on 1 to become naturally confident, approach authentically, start conversations effortlessly, and build meaningful relationships.</p>
         <div className="hero-actions"><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button></div>
       </motion.div>
     </section>
 
-    <section className="marquee" aria-label="Don Ramith principles"><div>CONFIDENCE <i>•</i> AUTHENTICITY <i>•</i> CONNECTION <i>•</i> ACTION <i>•</i> CONFIDENCE <i>•</i> AUTHENTICITY</div></section>
+    <section className="marquee" aria-label="Don Ramith principles">
+      <div className="marquee-track" aria-hidden="true">
+        {[0, 1].map(copy => <div className="marquee-content" key={copy}><span>CONFIDENCE</span><i>•</i><span>AUTHENTICITY</span><i>•</i><span>CONNECTION</span><i>•</i><span>ACTION</span><i>•</i></div>)}
+      </div>
+    </section>
 
     <motion.section className="my-story" id="story" {...reveal}>
       <div className="my-story-image"><Image src="/hero-don-beach-walk.webp" alt="Don walking and talking on the beach" fill sizes="(max-width: 800px) 100vw, 54vw" /></div>
       <div className="my-story-copy">
         <p className="section-index">MY STORY</p>
-        <h2>Hi, I&apos;m <em>Don.</em></h2>
-        <p>A few years ago, I struggled with confidence too. Conversations felt forced. I&apos;d rehearse what to say before every interaction—and still freeze.</p>
-        <p>Instead of accepting it, I started practicing conversations with strangers every single day. Those small, uncomfortable actions changed my life completely—and now I&apos;ve helped thousands of people build the same unshakeable confidence through my content and coaching.</p>
+        <h2>Hi, I’m <em>Ramith.</em></h2>
+        <p>A few years ago, I struggled with confidence. I wasn’t good with women. I wanted to approach women I found attractive, but I would overthink everything, hesitate, and walk away without saying anything at all.</p>
+        <p>Instead of giving up, I started pushing myself to have conversations with strangers and beautiful women every single day. Along the way, I learned a lot about women, social dynamics, psychology, and what it actually takes to connect with someone authentically.</p>
+        <p>Over time, I became better with women and people alike. I became more confident, more secure in who I am, and better at expressing myself.</p>
+        <p>Now, I want to share what I’ve learned and help you become a better version of yourself too.</p>
         <button className="primary" onClick={() => setApply(true)}>Start your confidence journey <Arrow /></button>
       </div>
     </motion.section>
@@ -188,27 +195,16 @@ export function LandingPage() {
       )}</div>
     </section>
 
-    <motion.section className="transformation" {...reveal}>
-      <div className="transformation-head"><h2>The Transformation</h2><p>This is what changes when you commit.</p></div>
-      <div className="comparison" role="table" aria-label="Before and after coaching"><div className="comparison-label before-label" role="columnheader">BEFORE</div><div className="comparison-label after-label" role="columnheader">AFTER</div>{[
-        ["Overthinking every interaction","Starting conversations naturally"],
-        ["Fear of rejection","Comfortable meeting anyone"],
-        ["Running out of things to say","Confident in any conversation"],
-        ["Avoiding social opportunities","Taking action without hesitation"],
-        ["Dreading first impressions","Making people feel at ease instantly"],
-      ].map(([before,after])=><div className="comparison-row" role="row" key={before}><div className="before-item" role="cell"><b aria-hidden="true">×</b><span>{before}</span></div><div className="after-item" role="cell"><b aria-hidden="true">✓</b><span>{after}</span></div></div>)}</div>
-    </motion.section>
-
     <section className="fit-section" aria-label="Who coaching is and is not for">
-      <div className="fit-grid">
-        <motion.article className="fit-card fit-card-positive" {...reveal}>
-          <header><h2>This is for you if...</h2><p>You&apos;ll see yourself in at least one of these.</p></header>
-          <ul>{fitItems.map((item, index) => <motion.li key={item} initial={reduce ? false : { opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .38, delay: index * .055 }}><CheckCircle2 aria-hidden="true"/><span>{item}</span></motion.li>)}</ul>
-        </motion.article>
-        <motion.article className="fit-card fit-card-negative" {...reveal} transition={{ duration: .55, delay: .1 }}>
-          <header><h2>This is NOT for you if...</h2><p>Don is selective about who he works with.</p></header>
-          <ul>{notFitItems.map((item, index) => <motion.li key={item} initial={reduce ? false : { opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .38, delay: index * .055 }}><XCircle aria-hidden="true"/><span>{item}</span></motion.li>)}</ul>
-        </motion.article>
+      <div className="fit-comparison">
+        <div className="fit-panel fit-panel-positive">
+          <header className="fit-head fit-head-positive"><h2>This is for you if…</h2><p>You’ll see yourself in at least one of these.</p></header>
+          {fitItems.map((item, index) => <motion.div className="fit-cell fit-cell-positive" key={item} initial={reduce ? false : { opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .34, delay: index * .045 }}><CheckCircle2 aria-hidden="true"/><span>{item}</span></motion.div>)}
+        </div>
+        <div className="fit-panel fit-panel-negative">
+          <header className="fit-head fit-head-negative"><h2>This is not for you if…</h2><p>Don is selective about who he works with.</p></header>
+          {notFitItems.map((item, index) => <motion.div className="fit-cell fit-cell-negative" key={item} initial={reduce ? false : { opacity: 0, x: 10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: .7 }} transition={{ duration: .34, delay: index * .045 }}><XCircle aria-hidden="true"/><span>{item}</span></motion.div>)}
+        </div>
       </div>
     </section>
 
@@ -229,15 +225,14 @@ export function LandingPage() {
       </article>)}</div>
     </section>
 
-    <section className="faq" id="faq"><motion.div className="faq-head" {...reveal}><p className="section-index">FAQ</p><h2>Clear answers.<br/><em>No pressure.</em></h2><p>Everything you need to know before applying for private coaching.</p></motion.div><div className="faq-list">{[
-      ["Who is coaching for?","Coaching is for anyone who wants to build unshakeable confidence, master their social skills, improve their dating life, or level up their professional presence. Whether you're starting from scratch or refining what you've already built."],
-      ["How long is the coaching program?","Programs typically run 3 to 6 months depending on your starting point and goals. Meaningful identity change takes time, and we focus on permanent transformation—not quick fixes that fade."],
-      ["Is this dating coaching?","Dating confidence is a common focus area, but the coaching addresses your full social presence. The same skills that make you confident in dating also apply to making friends, commanding a boardroom, and public speaking."],
-      ["How much does coaching cost?","The investment varies based on the program we build together. Fill out the application—if we're a fit, we'll cover all details including pricing and structure on our strategy call."],
-    ].map(([question,answer],i)=><motion.div className={`faq-item${openFaq === i ? " open" : ""}`} key={question} {...reveal} transition={{ duration:.4, delay:i*.05 }}><button className="faq-question" type="button" aria-expanded={openFaq === i} aria-controls={`faq-answer-${i}`} onClick={() => setOpenFaq(openFaq === i ? null : i)}><span>{question}</span><b aria-hidden="true">+</b></button><div className="faq-answer-shell"><button id={`faq-answer-${i}`} className="faq-answer" type="button" tabIndex={openFaq === i ? 0 : -1} onClick={() => setOpenFaq(null)}><span>{answer}</span></button></div></motion.div>)}</div></section>
+    <section className="faq" id="faq"><motion.div className="faq-head" {...reveal}><p className="section-index">FAQ</p><h2>Frequently asked<br/><em>questions.</em></h2></motion.div><div className="faq-list">{[
+      ["Who is coaching for?","Coaching is for men who want to become more confident approaching women, start authentic conversations, improve their dating life, and become more socially confident overall."],
+      ["How long is the coaching program?","Programs typically run 1 to 3 months, depending on your starting point and goals. Meaningful identity change takes time. We are not looking for a temporary boost in confidence. The goal is to build something that lasts and becomes part of who you are."],
+      ["Is this dating coaching?","Yes. You’ll learn how to approach women you’re attracted to without hesitation, start an authentic, genuine conversation, and confidently lead the interaction from there.\n\nThe skills you develop through dating coaching naturally extend beyond dating. As you become more comfortable approaching, communicating, expressing yourself, and handling social situations, you’ll naturally become more confident in your interactions with people in general — making friends, meeting new people, public speaking and simply feeling more comfortable in your own skin."],
+    ].map(([question,answer],i)=><motion.div className={`faq-item${openFaq === i ? " open" : ""}`} key={question} {...reveal} transition={{ duration:.4, delay:i*.05 }}><button className="faq-question" type="button" aria-expanded={openFaq === i} aria-controls={`faq-answer-${i}`} onClick={() => setOpenFaq(openFaq === i ? null : i)}><span>{question}</span><b aria-hidden="true">+</b></button><div className="faq-answer-shell"><button id={`faq-answer-${i}`} className="faq-answer" type="button" tabIndex={openFaq === i ? 0 : -1} onClick={() => setOpenFaq(null)}><span>{answer.split("\n\n").map((paragraph, index) => <Fragment key={paragraph}>{index > 0 && <><br/><br/></>}{paragraph}</Fragment>)}</span></button></div></motion.div>)}</div></section>
 
-    <section className="final-cta"><motion.div {...reveal}><p className="eyebrow">READY WHEN YOU ARE</p><h2>One conversation<br/>can change <em>everything.</em></h2><p>Apply for private coaching and find out if Don’s process is the right fit for you.</p><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button></motion.div></section>
-    <footer><a className="wordmark" href="#top">DON <i>RAMITH</i></a><p>CONFIDENCE · AUTHENTICITY · CONNECTION</p><div><a href="https://www.instagram.com/donramith/">Instagram</a><span>© 2026</span></div></footer>
+    <section className="final-cta"><motion.div {...reveal}><h2>A few months<br/><em>from now...</em></h2><p className="final-cta-copy">You’ll either wish you had started today, or be grateful you did.</p><p className="final-cta-note">Limited spots available each month.</p><button className="primary" onClick={() => setApply(true)}>Apply for 1-on-1 coaching <Arrow /></button></motion.div></section>
+    <footer><a className="wordmark" href="#top">DON <i>RAMITH</i></a><p>CONFIDENCE · AUTHENTICITY · CONNECTION</p><div><a href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Instagram</a><a href="https://youtube.com/@donramith?sub_confirmation=1" target="_blank" rel="noreferrer">YouTube</a><span>© 2026</span></div></footer>
     <Application open={apply} close={() => setApply(false)} />
   </main>;
 }
