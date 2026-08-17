@@ -23,7 +23,7 @@ const budgets = [
 ];
 type ApplicationData = { firstName: string; lastName: string; email: string; phone: string; instagram: string; challenge: string; importance: string; budget: string };
 const initialForm: ApplicationData = { firstName: "", lastName: "", email: "", phone: "", instagram: "", challenge: "", importance: "", budget: "" };
-const testimonials = ["1.mp4", "2.mp4", "3.mp4", "diego.mp4", "5.mp4", "6.mp4"];
+const testimonials = ["1.mp4", "6.mp4", "2.mp4", "diego.mp4", "3.mp4", "5.mp4"];
 const outcomes = [
   { Icon: Shield, title: "Walk Away Unshakeable", description: "Develop self-belief so deep that rejection, judgment, and criticism stop controlling your choices." },
   { Icon: MessageSquare, title: "Speak With Confidence", description: "Express yourself clearly without second-guessing every word. Flow effortlessly in any conversation." },
@@ -196,6 +196,24 @@ export function LandingPage() {
         </motion.article>
       )}</div>
     </section>
+
+    <motion.section className="transformation" {...reveal}>
+      <div className="transformation-head"><h2>The Transformation</h2><p>This is what changes when you commit.</p></div>
+      <div className="comparison" role="table" aria-label="Before and after coaching">
+        <div className="comparison-label before-label" role="columnheader">BEFORE</div>
+        <div className="comparison-label after-label" role="columnheader">AFTER</div>
+        {[
+          ["Overthinking every interaction", "Starting conversations naturally"],
+          ["Fear of rejection", "Comfortable meeting anyone"],
+          ["Running out of things to say", "Confident in any conversation"],
+          ["Avoiding social opportunities", "Taking action without hesitation"],
+          ["Dreading first impressions", "Making people feel at ease instantly"],
+        ].map(([before, after]) => <div className="comparison-row" role="row" key={before}>
+          <div className="before-item" role="cell"><b aria-hidden="true">×</b><span>{before}</span></div>
+          <div className="after-item" role="cell"><b aria-hidden="true">✓</b><span>{after}</span></div>
+        </div>)}
+      </div>
+    </motion.section>
 
     <section className="fit-section" aria-label="Who coaching is and is not for">
       <div className="fit-comparison">
