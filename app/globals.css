@@ -56,7 +56,6 @@ button:disabled{cursor:not-allowed}
 /* Keep the calendar at its final width while it loads behind the application. */
 .modal-card{position:relative}
 .booking-preloading{position:absolute;inset:78px 0 0;opacity:0;pointer-events:none;overflow:hidden}
-.calendar-loading{color:var(--muted);font-size:14px;line-height:1.6;text-align:center;margin:0 0 18px}
 .calendar-fallback{max-width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 16px;text-align:center}
 @media(max-width:800px){.booking-preloading{top:66px}}
 
@@ -64,5 +63,11 @@ button:disabled{cursor:not-allowed}
 .modal[data-open="false"]{z-index:-1;pointer-events:none}
 .calendar-shell{position:relative}
 .calendar-embed{height:560px}
-.calendar-shell .calendar-loading{position:absolute;inset:0 0 auto;z-index:1;margin:0;padding:18px;background:#101216}
+.calendar-loading{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:100px 24px 32px;border:1px solid var(--line);border-radius:8px;background:#101216;text-align:center}
+.calendar-loading strong{font-size:18px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.calendar-loading p{max-width:300px;margin:0;color:var(--muted);font-size:14px;line-height:1.6;text-wrap:pretty}
+.calendar-spinner{display:block;width:28px;height:28px;margin-bottom:4px;border:2px solid rgba(var(--accent-rgb),.18);border-top-color:var(--accent);border-radius:50%;animation:calendar-spin .85s linear infinite}
+@keyframes calendar-spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){.calendar-loading{padding:64px 20px 28px;gap:12px}.calendar-loading strong{font-size:16px}.calendar-loading p{font-size:13px}.calendar-spinner{width:24px;height:24px}}
+@media(prefers-reduced-motion:reduce){.calendar-spinner{animation:none}}
 @media(max-width:800px){.calendar-embed{height:600px}}

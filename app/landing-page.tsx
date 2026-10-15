@@ -103,7 +103,11 @@ function BookingCalendar() {
   }
 
   return <div className="calendar-shell" aria-busy={!ready && !failed}>
-    {!ready && <p className="calendar-loading" role="status">{failed ? "The calendar could not load. Use the link above to choose your time." : "Loading available times… Your call is booked once you choose a time and confirm."}</p>}
+    {!ready && <div className="calendar-loading" role="status" aria-live="polite">
+      {!failed && <span className="calendar-spinner" aria-hidden="true" />}
+      <strong>{failed ? "Calendar unavailable" : "Calendar loading"}</strong>
+      <p>{failed ? "Use the link above to open the calendar and choose your time." : "Finding available times for your strategy call…"}</p>
+    </div>}
     {usesCalendly ? <>
       <div className="calendar-embed" ref={container} />
       <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="afterInteractive" onReady={initialize} onError={() => setFailed(true)} />
