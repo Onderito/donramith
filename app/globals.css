@@ -52,3 +52,17 @@ button:disabled{cursor:not-allowed}
 .no-finances > .complete-actions {
   margin-top: 28px;
 }
+
+/* Keep the calendar at its final width while it loads behind the application. */
+.modal-card{position:relative}
+.booking-preloading{position:absolute;inset:78px 0 0;opacity:0;pointer-events:none;overflow:hidden}
+.calendar-loading{color:var(--muted);font-size:14px;line-height:1.6;text-align:center;margin:0 0 18px}
+.calendar-fallback{max-width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 16px;text-align:center}
+@media(max-width:800px){.booking-preloading{top:66px}}
+
+/* Opacity keeps Calendly laid out while the modal is closed or questions are shown. */
+.modal[data-open="false"]{z-index:-1;pointer-events:none}
+.calendar-shell{position:relative}
+.calendar-embed{height:560px}
+.calendar-shell .calendar-loading{position:absolute;inset:0 0 auto;z-index:1;margin:0;padding:18px;background:#101216}
+@media(max-width:800px){.calendar-embed{height:600px}}

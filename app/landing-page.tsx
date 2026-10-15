@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 
 import { AsYouType, CountryCode, getCountries, getCountryCallingCode, parsePhoneNumberFromString } from "libphonenumber-js";
 import { CheckCircle2, Heart, MessageSquare, Mic, Network, Shield, UsersRound, XCircle } from "lucide-react";
 import Image from "next/image";
+import Script from "next/script";
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 
 const challenges = [
@@ -22,6 +23,12 @@ const budgets = [
   "I DON'T have the finances to invest in myself.",
 ];
 type ApplicationData = { firstName: string; lastName: string; email: string; phone: string; instagram: string; challenge: string; importance: string; budget: string };
+const calendarUrl = process.env.NEXT_PUBLIC_CALENDAR_URL || "https://cal.com/";
+const calendarEmbedUrl = new URL(calendarUrl);
+const usesCalendly = ["calendly.com", "www.calendly.com"].includes(calendarEmbedUrl.hostname);
+if (usesCalendly) calendarEmbedUrl.searchParams.set("hide_event_type_details", "1");
+type CalendlyWindow = Window & { Calendly?: { initInlineWidget: (options: { url: string; parentElement: HTMLElement }) => void } };
+
 const initialForm: ApplicationData = { firstName: "", lastName: "", email: "", phone: "", instagram: "", challenge: "", importance: "", budget: "" };
 const testimonials = ["1.mp4", "6.mp4", "2.mp4", "diego.mp4", "3.mp4", "5.mp4"];
 const outcomes = [
@@ -70,6 +77,40 @@ function ScrollProgress() {
   return <motion.div className="scroll-progress" style={{ scaleX }} aria-hidden="true" />;
 }
 
+function BookingCalendar() {
+  const container = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!usesCalendly) return;
+    const onMessage = (event: MessageEvent) => {
+      const frame = container.current?.querySelector("iframe");
+      if (event.origin !== calendarEmbedUrl.origin || !frame || event.source !== frame.contentWindow) return;
+      if (event.data?.event === "calendly.event_type_viewed") setReady(true);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  function initialize() {
+    const parentElement = container.current;
+    const calendly = (window as CalendlyWindow).Calendly;
+    if (!parentElement || !calendly || parentElement.querySelector("iframe")) return;
+    calendly.initInlineWidget({ url: calendarEmbedUrl.toString(), parentElement });
+    const frame = parentElement.querySelector("iframe");
+    if (frame) { frame.title = "Book your strategy session"; frame.loading = "eager"; }
+  }
+
+  return <div className="calendar-shell" aria-busy={!ready && !failed}>
+    {!ready && <p className="calendar-loading" role="status">{failed ? "The calendar could not load. Use the link above to choose your time." : "Loading available times… Your call is booked once you choose a time and confirm."}</p>}
+    {usesCalendly ? <>
+      <div className="calendar-embed" ref={container} />
+      <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="afterInteractive" onReady={initialize} onError={() => setFailed(true)} />
+    </> : <iframe src={calendarUrl} title="Book your strategy session" loading="eager" onLoad={() => setReady(true)} />}
+  </div>;
+}
+
 function Application({ open, close }: { open: boolean; close: () => void }) {
   const reduce = useReducedMotion();
   const [step, setStep] = useState(0);
@@ -94,6 +135,7 @@ function Application({ open, close }: { open: boolean; close: () => void }) {
   const contactValid = data.firstName.trim().length > 1 && data.lastName.trim().length > 1 && emailValid && phoneValid;
   const valid = [true, Boolean(data.challenge), Boolean(data.importance), contactValid, Boolean(data.budget)][step];
   const cannotInvest = data.budget === budgets[4];
+  const showBooking = complete && !cannotInvest && !declined;
 
   function choose(field: "challenge" | "importance", value: string, nextStep: number) {
     setData(current => ({ ...current, [field]: value }));
@@ -116,9 +158,9 @@ function Application({ open, close }: { open: boolean; close: () => void }) {
   function resetAndClose() { close(); setTimeout(() => { setStep(0); setData(initialForm); setComplete(false); setDeclined(false); setPhoneCountry("FR"); setError(""); }, 250); }
 
   return <AnimatePresence initial={false}>
-    {open && <motion.div className="modal" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div className="modal-card" role="dialog" aria-modal="true" aria-label="Coaching application"
-        initial={reduce ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: .26 }}>
+    <motion.div className="modal" data-open={open} aria-hidden={!open} inert={!open} initial={false} animate={{ opacity: open ? 1 : 0 }}>
+      <motion.div className="modal-card" role="dialog" aria-modal={open} aria-label="Coaching application"
+        initial={false} animate={{ y: open ? 0 : 18 }} transition={{ duration: reduce ? 0 : .26 }}>
         <header className="modal-top"><button className="wordmark wordmark-button" type="button" onClick={resetAndClose}>DON <i>RAMITH</i></button><button className="close" onClick={resetAndClose} aria-label="Close application">×</button></header>
         {declined ? <div className="complete no-finances"><div className="complete-mark">✓</div><h2>Thank you for coming by!</h2><p>I’m really glad you visited. Make full use of my free content, keep leveling up, and I’ll be here whenever the time is right for you.</p><div className="complete-actions"><a className="primary" href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Follow on Instagram <Arrow /></a><a className="secondary" href="https://youtube.com/@donramith?sub_confirmation=1" target="_blank" rel="noreferrer">Subscribe on YouTube <Arrow /></a><button type="button" onClick={resetAndClose}>Back to the website</button></div></div> : !complete ? <form className="form" onSubmit={submit}>
           <div className="progress"><span>{String(step + 1).padStart(2, "0")} / 05</span><div><i style={{ width: `${(step + 1) * 20}%` }} /></div><span>~2 MIN</span></div>
@@ -133,9 +175,20 @@ function Application({ open, close }: { open: boolean; close: () => void }) {
           </AnimatePresence>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="form-actions">{step > 0 && <button type="button" className="back" onClick={() => setStep(step - 1)}>← Back</button>}{step > 0 && <button className="next" disabled={!valid || submitting}>{submitting ? "Sending…" : step === 4 ? cannotInvest ? "Continue" : "See available times" : "Continue"}<Arrow /></button>}</div>
-        </form> : cannotInvest ? <div className="complete no-finances"><div className="complete-mark">✓</div><h2>Thank you for coming by!</h2><p>I’m really glad you visited. Make full use of my free content, keep leveling up, and I’ll be here whenever the time is right for you.</p><div className="complete-actions"><a className="primary" href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Follow on Instagram <Arrow /></a><a className="secondary" href="https://youtube.com/@donramith?sub_confirmation=1" target="_blank" rel="noreferrer">Subscribe on YouTube <Arrow /></a><button type="button" onClick={resetAndClose}>Back to the website</button></div></div> : <div className="booking"><div className="booking-copy"><div className="complete-mark">✓</div><p className="eyebrow">YOU’RE ALL SET</p><h2>Book Your 1-on-1 Strategy Session</h2></div><iframe src={process.env.NEXT_PUBLIC_CALENDAR_URL || "https://cal.com/"} title="Book your strategy session" loading="lazy" /><a className="calendar-fallback" href={process.env.NEXT_PUBLIC_CALENDAR_URL || "https://cal.com/"} target="_blank" rel="noreferrer">Open calendar in a new tab <Arrow /></a></div>}
+        </form> : cannotInvest ? <div className="complete no-finances"><div className="complete-mark">✓</div><h2>Thank you for coming by!</h2><p>I’m really glad you visited. Make full use of my free content, keep leveling up, and I’ll be here whenever the time is right for you.</p><div className="complete-actions"><a className="primary" href="https://www.instagram.com/donramith/" target="_blank" rel="noreferrer">Follow on Instagram <Arrow /></a><a className="secondary" href="https://youtube.com/@donramith?sub_confirmation=1" target="_blank" rel="noreferrer">Subscribe on YouTube <Arrow /></a><button type="button" onClick={resetAndClose}>Back to the website</button></div></div> : null}
+        {/* Mount once on page arrival; opening, steps and closing preserve the live calendar. */}
+        <div className={`booking${showBooking ? "" : " booking-preloading"}`} aria-hidden={!showBooking} inert={!showBooking}>
+          <div className="booking-copy">
+            <div className="complete-mark">✓</div>
+            <p className="eyebrow">ONE LAST STEP</p>
+            <h2>Book Your 1-on-1 Strategy Session</h2>
+            <p>Choose a time below to finish booking your call.</p>
+          </div>
+          <a className="calendar-fallback" href={calendarUrl} target="_blank" rel="noreferrer">Open calendar in a new tab <Arrow /></a>
+          <BookingCalendar />
+        </div>
       </motion.div>
-    </motion.div>}
+    </motion.div>
   </AnimatePresence>;
 }
 
